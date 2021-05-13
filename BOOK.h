@@ -189,7 +189,7 @@ public:
 
 		fclose(Filetxt);
 
-		//추가하기 =>함수화
+		//이름 입력 받기 =>함수화
 		cout << endl << "책의 이름(영문 100자 이내, 한글 30자 이내, 공백포함, 처음에 공백이 있으면 실행실패) : ";
 		cin >> chFName;
 		cout << endl << "책의 작가(영문 100자 이내, 한글 30자 이내, 공백포함, 처음에 공백이 있으면 실행실패) : ";
@@ -201,6 +201,7 @@ public:
 
 		sprintf(chInformationBuffer, "%s / %s / %d\n", chFName, chFWriter, nFYear);
 
+		//추가하기 => 함수화
 		Book* newNode = new Book();
 
 		strcpy(newNode->chInformation, chInformationBuffer);
@@ -216,6 +217,7 @@ public:
 		newNode->next = NULL;
 		Tail = newNode;
 
+		// 연결리스트를 파일에 뒤집어 씌우기 => 함수화
 		newNode = Head->next;
 
 		Filetxt = fopen("Book.txt", "w");
@@ -239,44 +241,250 @@ public:
 		cout << "도서 추가가 완료되었습니다!!" << endl;
 		system("pause");
 	}
-};
-/*
-class Link {
-public :
-	Book* head = new Book();
-	Link() {
-		head = NULL;
-	};
 
-	void makeLinkedList(); // 시작할 때 파일을 이용한 연결리스트 만들기
-	void insert(char chInformation[SIZE]); // 노드 추가
-	int nListSize = 0;
-};
-
-void Link::insert(char chInformation[SIZE])// 연결리스트에 추가
-{
-	if (nListSize == 0)
+	void deletebook()
 	{
-		strcpy(head->chInformation, chInformation);
-		head->next = NULL;
-	}
-	else
-	{
-		Book* currentNode = new Book();
+		//연결리스트 만들기 => 함수화
+		system("cls");
+		int npCount = 0; // 
+		Head->next = NULL;
+		Filetxt = fopen("Book.txt", "r");
 
-		strcpy(currentNode->chInformation, chInformation);
-		currentNode->next = NULL;
-
-		Book* tempNode = head;
-
-		while (tempNode->next != nullptr)
+		while (fgets(chBuffer, F_SIZE, Filetxt) != NULL)
 		{
-			tempNode = tempNode->next;
+			Book* newNode = new Book();
+
+			strcpy(newNode->chInformation, chBuffer);
+
+			if (Head->next == NULL)
+			{
+				Head->next = newNode;
+			}
+			else
+			{
+				Tail->next = newNode;
+			}
+			newNode->next = NULL;
+			Tail = newNode;
+			npCount++;
 		}
 
-		tempNode->next = currentNode;
+		fclose(Filetxt);
+
+		//이름 입력받기 =>함수화
+		cout << endl << "책의 이름(영문 100자 이내, 한글 30자 이내, 공백포함, 처음에 공백이 있으면 실행실패) : ";
+		cin >> chFName;
+		cout << endl << "책의 작가(영문 100자 이내, 한글 30자 이내, 공백포함, 처음에 공백이 있으면 실행실패) : ";
+		cin >> chFWriter;
+		cout << endl << "출판 년도(0~9999까지의 숫자를 입력하여 주세요) : ";
+		cin >> nFYear;
+
+		char chInformationBuffer[F_SIZE] = "\0";
+
+		sprintf(chInformationBuffer, "%s / %s / %d\n", chFName, chFWriter, nFYear);
+
+		Book* delNode = new Book();
+		delNode = Head->next;
+		Book* befNode = Head;
+		Book* nextNode;
+		nextNode = delNode->next;
+
+		int nIndex = 0; // 처음을 표현
+
+			while (delNode != NULL) // 노드가 NULL 일 때 까지
+			{
+				if (strstr(delNode->chInformation, chInformationBuffer) != NULL) // 노드안에 있는 chInformation 안에 아까 입력한 chBuffer가 있을 때
+				{
+					if (delNode->next == NULL) // 다음 노드가 없을 때
+					{
+						if (nIndex == 0) // 노드가 하나만 있을 때
+						{
+							delete delNode;
+
+							Head->next = NULL;
+							Tail = Head;
+
+							//연결리스트 텍스트 파일에 뒤집어 씌우기 => 함수화?
+							newNode = Head->next;
+
+							Filetxt = fopen("Book.txt", "w");
+
+							while (newNode != NULL)
+							{
+								fprintf(Filetxt, "%s", newNode->chInformation);
+								newNode = newNode->next;
+							}
+
+							fclose(Filetxt);
+
+							//회수하기 => 함수화
+							newNode = Head->next; //맨 처음노드부터 시작
+							while (newNode != NULL)//노드가 NULL이아니면
+							{
+								Head->next = newNode->next;//head가 현재노드의 주소가 가리키는 값을 가지고
+								delete newNode; // 회수
+								newNode = Head->next; // 그리고 다시 돌려받기 = 계속 주소를 따라서 이동
+							}
+							
+							cout << "도서 삭제가 완료되었습니다!!" << endl;
+							system("pause");
+							return;
+						}
+
+						else // 노드가 맨 끝에 있을 때
+						{
+							befNode->next = NULL;
+							delete delNode;
+							Tail = befNode;
+
+							//연결리스트 텍스트 파일에 뒤집어 씌우기 => 함수화?
+							newNode = Head->next;
+
+							Filetxt = fopen("Book.txt", "w");
+
+							while (newNode != NULL)
+							{
+								fprintf(Filetxt, "%s", newNode->chInformation);
+								newNode = newNode->next;
+							}
+
+							fclose(Filetxt);
+
+							//회수하기 => 함수화
+							newNode = Head->next; //맨 처음노드부터 시작
+							while (newNode != NULL)//노드가 NULL이아니면
+							{
+								Head->next = newNode->next;//head가 현재노드의 주소가 가리키는 값을 가지고
+								delete newNode; // 회수
+								newNode = Head->next; // 그리고 다시 돌려받기 = 계속 주소를 따라서 이동
+							}
+
+							cout << "도서 삭제가 완료되었습니다!!" << endl;
+							system("pause");
+							return;
+						}
+					}
+					else // 다음 노드가 있을 때
+					{
+						if (nIndex == 0) // 처음 일 때
+						{
+							Head->next = nextNode;
+							delete delNode;
+
+							//연결리스트 텍스트 파일에 뒤집어 씌우기 => 함수화?
+							newNode = Head->next;
+
+							Filetxt = fopen("Book.txt", "w");
+
+							while (newNode != NULL)
+							{
+								fprintf(Filetxt, "%s", newNode->chInformation);
+								newNode = newNode->next;
+							}
+
+							fclose(Filetxt);
+
+							//회수하기 => 함수화
+							newNode = Head->next; //맨 처음노드부터 시작
+							while (newNode != NULL)//노드가 NULL이아니면
+							{
+								Head->next = newNode->next;//head가 현재노드의 주소가 가리키는 값을 가지고
+								delete newNode; // 회수
+								newNode = Head->next; // 그리고 다시 돌려받기 = 계속 주소를 따라서 이동
+							}
+
+							cout << "도서 삭제가 완료되었습니다!!" << endl;
+							system("pause");
+							return;
+						}
+
+						else // 처음이 아닐 때
+						{
+							befNode->next = nextNode;
+							delete delNode;
+
+							//연결리스트 텍스트 파일에 뒤집어 씌우기 => 함수화?
+							newNode = Head->next;
+
+							Filetxt = fopen("Book.txt", "w");
+
+							while (newNode != NULL)
+							{
+								fprintf(Filetxt, "%s", newNode->chInformation);
+								newNode = newNode->next;
+							}
+
+							fclose(Filetxt);
+
+							//회수하기 => 함수화
+							newNode = Head->next; //맨 처음노드부터 시작
+							while (newNode != NULL)//노드가 NULL이아니면
+							{
+								Head->next = newNode->next;//head가 현재노드의 주소가 가리키는 값을 가지고
+								delete newNode; // 회수
+								newNode = Head->next; // 그리고 다시 돌려받기 = 계속 주소를 따라서 이동
+							}
+
+							cout << "도서 삭제가 완료되었습니다!!" << endl;
+							system("pause");
+							return;
+						}
+					}
+				}
+
+				befNode = delNode;
+				delNode = delNode->next;
+				nextNode = delNode->next;
+				nIndex++;
+			}
 	}
 
-	++nListSize;
-}
-*/
+	void searchbook()
+	{
+		system("cls");
+		char chBookInformation[SIZE] = "\0";
+		char chPrintInformation[F_SIZE] = "\0";
+		int nPrintCount = 1;
+
+		cout << endl << "책의 정보(영문 100자 이내, 한글 30자 이내, 공백포함, 처음에 공백이 있으면 실행실패) : ";
+		cin >> chBookInformation;
+
+		Filetxt = fopen("Book.txt", "r");
+
+		while (fgets(chPrintInformation, F_SIZE, Filetxt))
+		{
+			if (strstr(chPrintInformation, chBookInformation) != NULL)
+			{
+				cout << "<" << nPrintCount << ">" << chPrintInformation << endl;
+				nPrintCount++;
+			}
+		}
+
+		system("pause");
+		fclose(Filetxt);
+	}
+
+	void initializeindex()
+	{
+		system("cls");
+
+		char chinitialize[10] = "\0";
+		cout << "전체 도서 목록을 초기화 하시겠습니까??" << endl << "희망 하시는 경우 'y'를 입력 후 엔터를 눌러주세요" << endl;
+		cin >> chinitialize;
+
+		if (chinitialize == "y")
+		{
+			Filetxt = fopen("Book.txt", "w");
+			fclose(Filetxt);
+
+			cout << "초기화가 완료 되었습니다!!" << endl;
+			system("pause");
+		}
+
+		else
+		{
+			cout << "잘못 입력하셨습니다 다시 시도하여 주세요" << endl;
+			system("pause");
+		}
+	}
+};
