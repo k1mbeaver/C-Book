@@ -15,6 +15,16 @@ public :
 
 	void start();
 	int menu();
+	void error();
+	void NoBook();
+	void CompleteDelete();
+	void CompleteInsert();
+	void GetName();
+	void GetWriter();
+	void GetYear();
+	void GetInformation();
+	void HowInitialize();
+	void InitializeComplete();
 };
 
 void Book::start()
@@ -49,13 +59,68 @@ int Book::menu()
 
 	if (nButton >= 1 && nButton <= 6)
 	{
-		cout << "성공!" << " 값은 : " << nButton << endl;
 		return nButton;
 	}
 	else
 	{
 		return 0;
 	}
+}
+
+void Book::error()
+{
+	cout << endl << "\t\t\t\t\t== 다시 시도하여주세요 ==" << endl;
+	system("pause");
+}
+
+void Book::NoBook()
+{
+	cout << endl << "\t\t\t\t\t == 도서가 없습니다. 메인 화면으로 돌아갑니다. == " << endl;
+	system("pause");
+}
+
+void Book::CompleteDelete()
+{
+	cout << endl << "\t\t\t\t\t== 도서 삭제가 완료되었습니다!! ==" << endl;
+	system("pause");
+}
+
+void Book::CompleteInsert()
+{
+	cout << endl << "\t\t\t\t\t== 도서 추가가 완료되었습니다!! ==" << endl;
+	system("pause");
+}
+
+void Book::GetName()
+{
+	cout << endl << "책의 이름(영문 100자 이내, 한글 30자 이내, 공백포함, 처음에 공백이 있으면 실행실패) : ";
+}
+
+void Book::GetWriter()
+{
+	cout << endl << "책의 작가(영문 100자 이내, 한글 30자 이내, 공백포함, 처음에 공백이 있으면 실행실패) : ";
+}
+
+void Book::GetYear()
+{
+	cout << endl << "출판 년도(0~9999까지의 숫자를 입력하여 주세요) : ";
+}
+
+void Book::GetInformation()
+{
+	cout << endl << "\t\t\t책의 정보(영문 100자 이내, 한글 30자 이내, 공백포함, 처음에 공백이 있으면 실행실패) : ";
+}
+
+void Book::HowInitialize()
+{
+	cout << "\t\t\t\t\t== 전체 도서 목록을 초기화 하시겠습니까?? ==" << endl << endl << "\t\t\t\t\t== 희망 하시는 경우 'y'를 입력 후 엔터를 눌러주세요 ==" << endl
+		<< endl << "\t\t\t\t\t== 희망 하지 않는 경우 아무거나 입력하여 주세요 ==" << endl << endl;
+}
+
+void Book::InitializeComplete()
+{
+	cout << "\t\t\t\t\t== 초기화가 완료 되었습니다!! ==" << endl;
+	system("pause");
 }
 
 class File {
@@ -67,43 +132,22 @@ public:
 	char chBuffer[F_SIZE] = "\0";
 	Book chInformation[F_SIZE];
 	FILE* Filetxt = NULL;
-	FILE* Filetxt2 = NULL;
 	Book* Head = new Book();
 	Book* newNode = NULL;
 	Book* Tail = NULL;
+	int makeLinkedList(Book* Head, FILE* Filetxt);
+	void returnNode();
+	void linkedlistTofile(FILE* Filetxt);
+	void printallindex();
+	void insertbook();
+	void deletebook();
+	void searchbook();
+	void initializeindex();
+	Book Help;
+};
 	
-	/*
-	void FileRead() // 파일을 읽어 와서 연결리스트로 만들기( 자주 써먹을 예정 )
+int File::makeLinkedList(Book* Head, FILE* Filetxt) 
 	{
-		Head->next = NULL;
-		Filetxt = fopen("Book.txt", "r");
-
-		while (fgets(chBuffer, F_SIZE, Filetxt) != NULL)
-		{
-			Book* newNode = new Book();
-
-			strcpy(newNode->chInformation, chBuffer);
-
-			if (Head->next == NULL)
-			{
-				Head->next = newNode;
-			}
-			else
-			{
-				Tail->next = newNode;
-			}
-			newNode->next = NULL;
-			Tail = newNode;
-		}
-
-		fclose(Filetxt);
-	}
-	*/
-
-	void printallindex()
-	{
-
-		//연결리스트 만들기 => 함수화
 		system("cls");
 		int npCount = 0; // 
 		Head->next = NULL;
@@ -130,7 +174,42 @@ public:
 
 		fclose(Filetxt);
 
-		//출력하기 =>함수화
+		return npCount;
+	}
+
+	void File::returnNode()
+	{
+		newNode = Head->next; //맨 처음노드부터 시작
+		while (newNode != NULL)//노드가 NULL이아니면
+		{
+			Head->next = newNode->next;//head가 현재노드의 주소가 가리키는 값을 가지고
+			delete newNode; // 회수
+			newNode = Head->next; // 그리고 다시 돌려받기 = 계속 주소를 따라서 이동
+		}
+	}
+
+	void File::linkedlistTofile(FILE* Filetxt)
+	{
+		newNode = Head->next;
+
+		Filetxt = fopen("Book.txt", "w");
+
+		while (newNode != NULL)
+		{
+			fprintf(Filetxt, "%s", newNode->chInformation);
+			newNode = newNode->next;
+		}
+
+		fclose(Filetxt);
+	}
+
+	void File::printallindex()
+	{
+		int naCount = 0;
+		//연결리스트 만들기
+		naCount = makeLinkedList(Head, Filetxt);
+
+		//출력하기
 		int GetnCount = 1;
 
 		if (Head->next == NULL)
@@ -140,8 +219,8 @@ public:
 		else
 		{
 			newNode = Head->next;
-			cout << endl << "\t\t\t 제목 \t/\t 작가\t/\t 출판년도" << endl << endl;
-			while (GetnCount <= npCount)
+			cout << endl << "\t\t\t\t\t 제목     /     작가     /     출판년도" << endl << endl;
+			while (GetnCount <= naCount)
 			{
 				cout << "<" << GetnCount << ">" << " " << newNode->chInformation << endl << endl;
 				newNode = newNode->next;
@@ -149,59 +228,43 @@ public:
 			} 
 		}
 
-		//회수하기 => 함수화
-		newNode = Head->next; //맨 처음노드부터 시작
-		while (newNode != NULL)//노드가 NULL이아니면
-		{
-			Head->next = newNode->next;//head가 현재노드의 주소가 가리키는 값을 가지고
-			delete newNode; // 회수
-			newNode = Head->next; // 그리고 다시 돌려받기 = 계속 주소를 따라서 이동
-		}
+		//회수하기
+		returnNode();
 		system("pause");
 	}
 
-	void insertbook()
+	void File::insertbook()
 	{
-		//연결리스트 만들기 => 함수화
-		system("cls");
-		int npCount = 0; // 
-		Head->next = NULL;
-		Filetxt = fopen("Book.txt", "r");
+		char chInformationBuffer[F_SIZE] = "\0";
+		int nReturnIndex = 0;
+		//연결리스트 만들기
+		nReturnIndex = makeLinkedList(Head, Filetxt);
 
-		while (fgets(chBuffer, F_SIZE, Filetxt) != NULL)
+		//정보 입력
+		Help.GetName();
+		getchar();
+		cin.getline(chFName, SIZE, '\n');
+
+		//오류
+		if (chFName[0] == ' ') { Help.error(); return; }
+
+		Help.GetWriter();
+		cin.getline(chFWriter, SIZE, '\n');
+
+		//오류
+		if (chFWriter[0] == ' ') { Help.error(); return; }
+
+		Help.GetYear();
+		cin >> nFYear;
+		if (nFYear >= 0 && nFYear <= 9999)
 		{
-			Book* newNode = new Book();
-
-			strcpy(newNode->chInformation, chBuffer);
-
-			if (Head->next == NULL)
-			{
-				Head->next = newNode;
-			}
-			else
-			{
-				Tail->next = newNode;
-			}
-			newNode->next = NULL;
-			Tail = newNode;
-			npCount++;
+			sprintf(chInformationBuffer, "%s / %s / %d\n", chFName, chFWriter, nFYear);
 		}
 
-		fclose(Filetxt);
+		//오류
+		else { Help.error(); return; }
 
-		//이름 입력 받기 =>함수화
-		cout << endl << "책의 이름(영문 100자 이내, 한글 30자 이내, 공백포함, 처음에 공백이 있으면 실행실패) : ";
-		cin >> chFName;
-		cout << endl << "책의 작가(영문 100자 이내, 한글 30자 이내, 공백포함, 처음에 공백이 있으면 실행실패) : ";
-		cin >> chFWriter;
-		cout << endl << "출판 년도(0~9999까지의 숫자를 입력하여 주세요) : ";
-		cin >> nFYear;
-
-		char chInformationBuffer[F_SIZE] = "\0";
-
-		sprintf(chInformationBuffer, "%s / %s / %d\n", chFName, chFWriter, nFYear);
-
-		//추가하기 => 함수화
+		//추가하기
 		Book* newNode = new Book();
 
 		strcpy(newNode->chInformation, chInformationBuffer);
@@ -217,72 +280,69 @@ public:
 		newNode->next = NULL;
 		Tail = newNode;
 
-		// 연결리스트를 파일에 뒤집어 씌우기 => 함수화
-		newNode = Head->next;
+		// 연결리스트를 파일에 뒤집어 씌우기
+		linkedlistTofile(Filetxt);
 
-		Filetxt = fopen("Book.txt", "w");
-
-		while (newNode != NULL)
-		{
-			fprintf(Filetxt, "%s", newNode->chInformation);
-			newNode = newNode->next;
-		}
-
-		fclose(Filetxt);
-
-		//회수하기 => 함수화
-		newNode = Head->next; //맨 처음노드부터 시작
-		while (newNode != NULL)//노드가 NULL이아니면
-		{
-			Head->next = newNode->next;//head가 현재노드의 주소가 가리키는 값을 가지고
-			delete newNode; // 회수
-			newNode = Head->next; // 그리고 다시 돌려받기 = 계속 주소를 따라서 이동
-		}
-		cout << "도서 추가가 완료되었습니다!!" << endl;
-		system("pause");
+		//회수하기
+		returnNode();
+		Help.CompleteInsert();
 	}
 
-	void deletebook()
+	void File::deletebook()
 	{
-		//연결리스트 만들기 => 함수화
-		system("cls");
-		int npCount = 0; // 
-		Head->next = NULL;
+		char chInformationBuffer[F_SIZE] = "\0";
+		int nReturnIndex = 0;
+
+		//연결리스트 만들기
+		nReturnIndex = makeLinkedList(Head, Filetxt);
+
+		//정보 입력
+		Help.GetName();
+		getchar();
+		cin.getline(chFName, SIZE, '\n');
+
+		//오류
+		if (chFName[0] == ' ') { Help.error(); return; }
+
+		Help.GetWriter();
+		cin.getline(chFWriter, SIZE, '\n');
+
+		//오류
+		if (chFWriter[0] == ' ') { Help.error(); return; }
+
+		Help.GetYear();
+		cin >> nFYear;
+		if (nFYear >= 0 && nFYear <= 9999)
+		{
+			sprintf(chInformationBuffer, "%s / %s / %d\n", chFName, chFWriter, nFYear);
+		}
+		//오류
+		else { Help.error(); return; }
+
+		//도서가 없는 경우
+		int nGetCount = 0;
 		Filetxt = fopen("Book.txt", "r");
 
-		while (fgets(chBuffer, F_SIZE, Filetxt) != NULL)
+		while (fgets(chBuffer, F_SIZE, Filetxt)) // 파일의 맨 끝까지 갈 때 까지 진행
 		{
-			Book* newNode = new Book();
-
-			strcpy(newNode->chInformation, chBuffer);
-
-			if (Head->next == NULL)
+			if (strstr(chInformationBuffer, chBuffer) != NULL)
 			{
-				Head->next = newNode;
+				nGetCount++;
 			}
-			else
+
+			else if (strstr(chInformationBuffer, chBuffer) == NULL)
 			{
-				Tail->next = newNode;
+				continue;//계속 0으로 진행
 			}
-			newNode->next = NULL;
-			Tail = newNode;
-			npCount++;
 		}
 
-		fclose(Filetxt);
+		if (nGetCount == 0)
+		{
+			Help.NoBook();
+			return;
+		}
 
-		//이름 입력받기 =>함수화
-		cout << endl << "책의 이름(영문 100자 이내, 한글 30자 이내, 공백포함, 처음에 공백이 있으면 실행실패) : ";
-		cin >> chFName;
-		cout << endl << "책의 작가(영문 100자 이내, 한글 30자 이내, 공백포함, 처음에 공백이 있으면 실행실패) : ";
-		cin >> chFWriter;
-		cout << endl << "출판 년도(0~9999까지의 숫자를 입력하여 주세요) : ";
-		cin >> nFYear;
-
-		char chInformationBuffer[F_SIZE] = "\0";
-
-		sprintf(chInformationBuffer, "%s / %s / %d\n", chFName, chFWriter, nFYear);
-
+		// 특정 노드 삭제하기
 		Book* delNode = new Book();
 		delNode = Head->next;
 		Book* befNode = Head;
@@ -304,30 +364,12 @@ public:
 							Head->next = NULL;
 							Tail = Head;
 
-							//연결리스트 텍스트 파일에 뒤집어 씌우기 => 함수화?
-							newNode = Head->next;
-
-							Filetxt = fopen("Book.txt", "w");
-
-							while (newNode != NULL)
-							{
-								fprintf(Filetxt, "%s", newNode->chInformation);
-								newNode = newNode->next;
-							}
-
-							fclose(Filetxt);
+							//연결리스트 텍스트 파일에 뒤집어 씌우기
+							linkedlistTofile(Filetxt);
 
 							//회수하기 => 함수화
-							newNode = Head->next; //맨 처음노드부터 시작
-							while (newNode != NULL)//노드가 NULL이아니면
-							{
-								Head->next = newNode->next;//head가 현재노드의 주소가 가리키는 값을 가지고
-								delete newNode; // 회수
-								newNode = Head->next; // 그리고 다시 돌려받기 = 계속 주소를 따라서 이동
-							}
-							
-							cout << "도서 삭제가 완료되었습니다!!" << endl;
-							system("pause");
+							returnNode();
+							Help.CompleteDelete();
 							return;
 						}
 
@@ -337,30 +379,12 @@ public:
 							delete delNode;
 							Tail = befNode;
 
-							//연결리스트 텍스트 파일에 뒤집어 씌우기 => 함수화?
-							newNode = Head->next;
+							//연결리스트 텍스트 파일에 뒤집어 씌우기
+							linkedlistTofile(Filetxt);
 
-							Filetxt = fopen("Book.txt", "w");
-
-							while (newNode != NULL)
-							{
-								fprintf(Filetxt, "%s", newNode->chInformation);
-								newNode = newNode->next;
-							}
-
-							fclose(Filetxt);
-
-							//회수하기 => 함수화
-							newNode = Head->next; //맨 처음노드부터 시작
-							while (newNode != NULL)//노드가 NULL이아니면
-							{
-								Head->next = newNode->next;//head가 현재노드의 주소가 가리키는 값을 가지고
-								delete newNode; // 회수
-								newNode = Head->next; // 그리고 다시 돌려받기 = 계속 주소를 따라서 이동
-							}
-
-							cout << "도서 삭제가 완료되었습니다!!" << endl;
-							system("pause");
+							//회수하기
+							returnNode();
+							Help.CompleteDelete();
 							return;
 						}
 					}
@@ -371,30 +395,12 @@ public:
 							Head->next = nextNode;
 							delete delNode;
 
-							//연결리스트 텍스트 파일에 뒤집어 씌우기 => 함수화?
-							newNode = Head->next;
+							//연결리스트 텍스트 파일에 뒤집어 씌우기
+							linkedlistTofile(Filetxt);
 
-							Filetxt = fopen("Book.txt", "w");
-
-							while (newNode != NULL)
-							{
-								fprintf(Filetxt, "%s", newNode->chInformation);
-								newNode = newNode->next;
-							}
-
-							fclose(Filetxt);
-
-							//회수하기 => 함수화
-							newNode = Head->next; //맨 처음노드부터 시작
-							while (newNode != NULL)//노드가 NULL이아니면
-							{
-								Head->next = newNode->next;//head가 현재노드의 주소가 가리키는 값을 가지고
-								delete newNode; // 회수
-								newNode = Head->next; // 그리고 다시 돌려받기 = 계속 주소를 따라서 이동
-							}
-
-							cout << "도서 삭제가 완료되었습니다!!" << endl;
-							system("pause");
+							//회수하기
+							returnNode();
+							Help.CompleteDelete();
 							return;
 						}
 
@@ -403,30 +409,12 @@ public:
 							befNode->next = nextNode;
 							delete delNode;
 
-							//연결리스트 텍스트 파일에 뒤집어 씌우기 => 함수화?
-							newNode = Head->next;
+							//연결리스트 텍스트 파일에 뒤집어 씌우기
+							linkedlistTofile(Filetxt);
 
-							Filetxt = fopen("Book.txt", "w");
-
-							while (newNode != NULL)
-							{
-								fprintf(Filetxt, "%s", newNode->chInformation);
-								newNode = newNode->next;
-							}
-
-							fclose(Filetxt);
-
-							//회수하기 => 함수화
-							newNode = Head->next; //맨 처음노드부터 시작
-							while (newNode != NULL)//노드가 NULL이아니면
-							{
-								Head->next = newNode->next;//head가 현재노드의 주소가 가리키는 값을 가지고
-								delete newNode; // 회수
-								newNode = Head->next; // 그리고 다시 돌려받기 = 계속 주소를 따라서 이동
-							}
-
-							cout << "도서 삭제가 완료되었습니다!!" << endl;
-							system("pause");
+							//회수하기
+							returnNode();
+							Help.CompleteDelete();
 							return;
 						}
 					}
@@ -439,52 +427,79 @@ public:
 			}
 	}
 
-	void searchbook()
+	void File::searchbook()
 	{
 		system("cls");
 		char chBookInformation[SIZE] = "\0";
 		char chPrintInformation[F_SIZE] = "\0";
+		char chBuffer[F_SIZE] = "\0";
 		int nPrintCount = 1;
 
-		cout << endl << "책의 정보(영문 100자 이내, 한글 30자 이내, 공백포함, 처음에 공백이 있으면 실행실패) : ";
-		cin >> chBookInformation;
+		Help.GetInformation();
+		getchar();
+		cin.getline(chBookInformation, SIZE, '\n');
 
+		//오류
+		if (chBookInformation[0] == ' ') { Help.error(); return; }
+
+		//도서가 없는 경우
+		int nGetCount = 0;
 		Filetxt = fopen("Book.txt", "r");
 
+		while (fgets(chBuffer, F_SIZE, Filetxt)) // 파일의 맨 끝까지 갈 때 까지 진행
+		{
+			if (strstr(chBuffer, chBookInformation) != NULL)
+			{
+				nGetCount++;
+			}
+
+
+			else if (strstr(chBuffer, chBookInformation) == NULL)
+			{
+				continue;//계속 0으로 진행
+			}
+		}
+
+		if (nGetCount == 0)
+		{
+			Help.NoBook();
+			fclose(Filetxt);
+			return;
+		}
+		fclose(Filetxt);
+
+		//특정 도서 출력
+		Filetxt = fopen("Book.txt", "r");
 		while (fgets(chPrintInformation, F_SIZE, Filetxt))
 		{
 			if (strstr(chPrintInformation, chBookInformation) != NULL)
 			{
-				cout << "<" << nPrintCount << ">" << chPrintInformation << endl;
+				cout << "<" << nPrintCount << "> " << chPrintInformation << endl;
 				nPrintCount++;
 			}
 		}
 
-		system("pause");
 		fclose(Filetxt);
+		system("pause");
 	}
 
-	void initializeindex()
+	void File::initializeindex()
 	{
 		system("cls");
 
-		char chinitialize[10] = "\0";
-		cout << "전체 도서 목록을 초기화 하시겠습니까??" << endl << "희망 하시는 경우 'y'를 입력 후 엔터를 눌러주세요" << endl;
+		char chinitialize[10] = {};
+		Help.HowInitialize();
 		cin >> chinitialize;
 
-		if (chinitialize == "y")
+		if (chinitialize[0] == 'y' || chinitialize[0] == 'Y')
 		{
 			Filetxt = fopen("Book.txt", "w");
 			fclose(Filetxt);
 
-			cout << "초기화가 완료 되었습니다!!" << endl;
-			system("pause");
+			Help.InitializeComplete();
+			return;
 		}
-
-		else
-		{
-			cout << "잘못 입력하셨습니다 다시 시도하여 주세요" << endl;
-			system("pause");
-		}
+		//오류
+		else { Help.error(); return; }
 	}
-};
+
